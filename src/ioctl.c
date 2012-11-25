@@ -95,6 +95,13 @@
 #include "ioctl.h"
 
 /*****************************************************************************
+ * Local prototypes, Linux specific
+ *****************************************************************************/
+#if defined( HAVE_LINUX_CDROM_H )
+static void LinuxInitCGC ( struct cdrom_generic_command *, int );
+#endif
+
+/*****************************************************************************
  * Local prototypes, BeOS specific
  *****************************************************************************/
 #if defined( SYS_BEOS )
@@ -1801,6 +1808,35 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
 }
 
 /* Local prototypes */
+
+#if defined( HAVE_LINUX_CDROM_H )
+/*****************************************************************************
+ * LinuxInitCGC: initialize a CGC structure for the Linux kernel
+ *****************************************************************************
+ * This function initializes a Linux CD-ROM Generic Command structure for
+ * future use, either a read command or a write command.
+ *****************************************************************************/
+static void LinuxInitCGC( struct cdrom_generic_command *p_cgc, int i_type )
+{
+    memset( p_cgc->buffer, 0, p_cgc->buflen );
+
+    switch( i_type )
+    {
+        case GPCMD_READ_DVD_STRUCTURE:
+            p_cgc->data_direction = CGC_DATA_READ;
+            break;
+    }
+
+    p_cgc->cmd[ 0 ] = i_type;
+
+    p_cgc->cmd[ 8 ] = (p_cgc->buflen >> 8) & 0xff;
+    p_cgc->cmd[ 9 ] =  p_cgc->buflen       & 0xff;
+
+    p_cgc->sense    = NULL;
+
+    p_cgc->timeout  = 1000000;
+}
+#endif
 
 #if defined( SYS_BEOS )
 /*****************************************************************************

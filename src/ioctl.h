@@ -42,6 +42,19 @@ int ioctl_SendRPC           ( int, int );
 #define DVD_DISCKEY_SIZE 2048
 
 /*****************************************************************************
+ * Common macro, Linux specific
+ *****************************************************************************/
+#if defined( HAVE_LINUX_CDROM_H )
+#define INIT_CGC( TYPE, SIZE ) \
+    struct cdrom_generic_command cgc; \
+    uint8_t p_buffer[ (SIZE)+1 ]; \
+    memset( &cgc, 0, sizeof( struct cdrom_generic_command ) ); \
+    cgc.buffer = (unsigned char *)p_buffer; \
+    cgc.buflen = (SIZE); \
+    LinuxInitCGC( &cgc, (TYPE) );
+#endif
+
+/*****************************************************************************
  * Common macro, BeOS specific
  *****************************************************************************/
 #if defined( SYS_BEOS )
