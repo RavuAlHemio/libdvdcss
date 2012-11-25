@@ -42,9 +42,9 @@ uint64_t media_key = 0;
 uint64_t id_album = 0;
 uint64_t id_media = 0;
 uint64_t vr_k_te  = 0;
-
-uint32_t sbox_f[256];
 #endif
+
+static uint32_t sbox_f[ 256 ];
 
 static uint8_t sbox[ 256 ] =
 {
