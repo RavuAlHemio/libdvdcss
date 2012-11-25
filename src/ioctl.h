@@ -38,12 +38,14 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
 int ioctl_SendRPC           ( int, int );
 
 int ioctl_ReadCPRMMediaId   ( int, int *, uint8_t * );
+int ioctl_ReadCPRMMKBPack   ( int, int *, uint32_t, uint8_t *, int * );
 
 #define DVD_KEY_SIZE 5
 #define DVD_CHALLENGE_SIZE 10
 #define DVD_DISCKEY_SIZE 2048
 
 #define CPRM_MEDIA_ID_SIZE 20
+#define CPRM_MKB_PACK_SIZE   24576
 
 /*****************************************************************************
  * Common macro, Linux specific
