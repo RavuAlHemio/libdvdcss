@@ -166,12 +166,12 @@ static void c2_init( void )
 
     for ( i = 0; i < 256; i++ )
     {
-        c0 = sbox[i];
+        c0 = sbox[ i ];
         c1 = rol8( ( c0 ^ 0x65 ), 1 );
         c2 = rol8( ( c0 ^ 0x2b ), 5 );
         c3 = rol8( ( c0 ^ 0xc9 ), 2 );
         c0 ^= i;
-        sbox_f[i] = ( c3 << 24 ) + ( c2 << 16 ) + ( c1 << 8 ) + c0;
+        sbox_f[ i ] = ( c3 << 24 ) + ( c2 << 16 ) + ( c1 << 8 ) + c0;
     }
 }
 
