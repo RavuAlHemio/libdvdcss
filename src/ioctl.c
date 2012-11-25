@@ -1817,7 +1817,7 @@ int ioctl_ReadCPRMMediaId( int i_fd, int *p_agid, uint8_t *p_mediaid )
 #if defined( HAVE_LINUX_CDROM_H )
     INIT_CGC( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
 
-    cgc.cmd[  7 ] = CPRM_STRUCT_MEDIA_ID;
+    cgc.cmd[ 7 ]  = CPRM_STRUCT_MEDIA_ID;
     cgc.cmd[ 10 ] = *p_agid << 6;
 
     i_ret = ioctl( i_fd, CDROM_SEND_PACKET, &cgc );
