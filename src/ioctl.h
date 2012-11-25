@@ -213,8 +213,6 @@ typedef union dvd_authinfo dvd_authinfo;
 #define CPRM_STRUCT_MEDIA_ID 0x06
 #define CPRM_STRUCT_MKB      0x07
 
-#define CPRM_MEDIA_ID_SIZE   20
-
 /*****************************************************************************
  * win32 ioctl specific
  *****************************************************************************/
