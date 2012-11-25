@@ -1,6 +1,6 @@
 SUBDIRS = dvdcss
 
-lib_LTLIBRARIES = libdvdcss.la
+lib_LTLIBRARIES = libdvdcss.la libdvdcpxm.la
 
 libdvdcss_la_SOURCES = \
 	libdvdcss.c libdvdcss.h \
@@ -16,6 +16,20 @@ EXTRA_libdvdcss_la_SOURCES = \
 
 libdvdcss_la_LIBADD = $(bsdi_libadd)
 libdvdcss_la_LDFLAGS = -version-info 3:0:1 $(libtool_flags) @DVDCSS_LDFLAGS@
+
+libdvdcpxm_la_SOURCES = \
+	libdvdcpxm.c libdvdcpxm.h \
+	device.c device.h \
+	ioctl.c ioctl.h \
+	error.c \
+	common.h \
+	$(bsdi_sources)
+
+EXTRA_libdvdcpxm_la_SOURCES = \
+	$(bsdi_extras)
+
+libdvdcpxm_la_LIBADD = $(bsdi_libadd)
+libdvdcpxm_la_LDFLAGS = -version-info 3:0:1 $(libtool_flags) @DVDCSS_LDFLAGS@
 
 bsdi_extras = bsdi_ioctl.c bsdi_dvd.h
 

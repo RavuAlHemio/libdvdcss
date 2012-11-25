@@ -1,3 +1,3 @@
 pkgincludedir = $(includedir)/dvdcss
 
-pkginclude_HEADERS = dvdcss.h
+pkginclude_HEADERS = dvdcss.h dvdcpxm.h
