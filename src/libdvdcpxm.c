@@ -240,20 +240,26 @@ static uint64_t c2_g( uint64_t code, uint64_t key )
 
 static void c2_ecbc( void *p_buffer, uint64_t key, int length )
 {
-    uint32_t L, R, t;
-    uint32_t ktmpa, ktmpb, ktmpc, ktmpd;
-    uint32_t sk[ 10 ];
-    uint64_t inout, inkey;
-    int      round, key_round, i;
+    uint32_t  L, R, t;
+    uint32_t  ktmpa, ktmpb, ktmpc, ktmpd;
+    uint32_t  sk[ 10 ];
+    uint64_t  inkey;
+    int       round, key_round, i;
+    uint8_t * p_cbuffer = ( uint8_t* )p_buffer;
 
     inkey = key;
     key_round = 10;
     for ( i = 0; i < length; i += 8 )
     {
-        inout = *( uint64_t* )p_buffer;
-        B2N_64( inout );
-        L  =    ( uint32_t )( ( inout >> 32 ) & 0xffffffff );
-        R  =    ( uint32_t )( ( inout       ) & 0xffffffff );
+        L = ( ( p_cbuffer[ 0 ] & 0xff ) << 24LL ) |
+            ( ( p_cbuffer[ 1 ] & 0xff ) << 16LL ) |
+            ( ( p_cbuffer[ 2 ] & 0xff ) <<  8LL ) |
+              ( p_cbuffer[ 3 ] & 0xff );
+        R = ( ( p_cbuffer[ 4 ] & 0xff ) << 24LL ) |
+            ( ( p_cbuffer[ 5 ] & 0xff ) << 16LL ) |
+            ( ( p_cbuffer[ 6 ] & 0xff ) <<  8LL ) |
+              ( p_cbuffer[ 7 ] & 0xff );
+
         ktmpa = ( uint32_t )( ( inkey >> 32 ) & 0x00ffffff );
         ktmpb = ( uint32_t )( ( inkey       ) & 0xffffffff );
         for ( round = 0; round < key_round; round++ )
@@ -275,9 +281,17 @@ static void c2_ecbc( void *p_buffer, uint64_t key, int length )
             t = L; L = R; R = t;
         }
         t = L; L = R; R = t;
-        inout = ( ( ( uint64_t )L ) << 32 ) | R;
-        B2N_64( inout );
-        *( ( uint64_t* )p_buffer )++ = inout;
+
+        p_cbuffer[ 0 ] = ( L >> 24LL ) & 0xff;
+        p_cbuffer[ 1 ] = ( L >> 16LL ) & 0xff;
+        p_cbuffer[ 2 ] = ( L >>  8LL ) & 0xff;
+        p_cbuffer[ 3 ] =   L           & 0xff;
+        p_cbuffer[ 4 ] = ( R >> 24LL ) & 0xff;
+        p_cbuffer[ 5 ] = ( R >> 16LL ) & 0xff;
+        p_cbuffer[ 6 ] = ( R >>  8LL ) & 0xff;
+        p_cbuffer[ 7 ] =   R           & 0xff;
+        p_cbuffer += 8;
+
         key_round = 2;
     }
 }
@@ -287,17 +301,23 @@ static void c2_dcbc( void *p_buffer, uint64_t key, int length )
     uint32_t L, R, t;
     uint32_t ktmpa, ktmpb, ktmpc, ktmpd;
     uint32_t sk[ 10 ];
-    uint64_t inout, inkey;
+    uint64_t inkey;
     int      round, key_round, i;
+    uint8_t * p_cbuffer = ( uint8_t* )p_buffer;
 
     inkey = key;
     key_round = 10;
     for ( i = 0; i < length; i += 8 )
     {
-        inout = *( uint64_t* )p_buffer;
-        B2N_64( inout );
-        L  =    ( uint32_t )( ( inout >> 32 ) & 0xffffffff );
-        R  =    ( uint32_t )( ( inout       ) & 0xffffffff );
+        L = ( ( p_cbuffer[ 0 ] & 0xff ) << 24LL ) |
+            ( ( p_cbuffer[ 1 ] & 0xff ) << 16LL ) |
+            ( ( p_cbuffer[ 2 ] & 0xff ) <<  8LL ) |
+              ( p_cbuffer[ 3 ] & 0xff );
+        R = ( ( p_cbuffer[ 4 ] & 0xff ) << 24LL ) |
+            ( ( p_cbuffer[ 5 ] & 0xff ) << 16LL ) |
+            ( ( p_cbuffer[ 6 ] & 0xff ) <<  8LL ) |
+              ( p_cbuffer[ 7 ] & 0xff );
+
         ktmpa = ( uint32_t )( ( inkey >> 32 ) & 0x00ffffff );
         ktmpb = ( uint32_t )( ( inkey       ) & 0xffffffff );
         for ( round = 0; round < key_round; round++ )
@@ -319,9 +339,17 @@ static void c2_dcbc( void *p_buffer, uint64_t key, int length )
             }
         }
         t = L; L = R; R = t;
-        inout = ( ( ( uint64_t )L ) << 32 ) | R;
-        B2N_64( inout );
-        *( ( uint64_t* )p_buffer )++ = inout;
+
+        p_cbuffer[ 0 ] = ( L >> 24LL ) & 0xff;
+        p_cbuffer[ 1 ] = ( L >> 16LL ) & 0xff;
+        p_cbuffer[ 2 ] = ( L >>  8LL ) & 0xff;
+        p_cbuffer[ 3 ] =   L           & 0xff;
+        p_cbuffer[ 4 ] = ( R >> 24LL ) & 0xff;
+        p_cbuffer[ 5 ] = ( R >> 16LL ) & 0xff;
+        p_cbuffer[ 6 ] = ( R >>  8LL ) & 0xff;
+        p_cbuffer[ 7 ] =   R           & 0xff;
+        p_cbuffer += 8;
+
         key_round = 2;
     }
 }
