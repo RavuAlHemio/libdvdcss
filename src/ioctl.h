@@ -37,9 +37,13 @@ int ioctl_SendKey2          ( int, int *, uint8_t * );
 int ioctl_ReportRPC         ( int, int *, int *, int * );
 int ioctl_SendRPC           ( int, int );
 
+int ioctl_ReadCPRMMediaId   ( int, int *, uint8_t * );
+
 #define DVD_KEY_SIZE 5
 #define DVD_CHALLENGE_SIZE 10
 #define DVD_DISCKEY_SIZE 2048
+
+#define CPRM_MEDIA_ID_SIZE 20
 
 /*****************************************************************************
  * Common macro, Linux specific
@@ -205,6 +209,11 @@ typedef union dvd_authinfo dvd_authinfo;
 #   define DVD_REPORT_RPC           0x08
 #   define DVD_INVALIDATE_AGID      0x3f
 #endif
+
+#define CPRM_STRUCT_MEDIA_ID 0x06
+#define CPRM_STRUCT_MKB      0x07
+
+#define CPRM_MEDIA_ID_SIZE   20
 
 /*****************************************************************************
  * win32 ioctl specific

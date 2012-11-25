@@ -1807,6 +1807,156 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     return i_ret;
 }
 
+/*****************************************************************************
+ * ioctl_ReadCPRMMediaId: read CPRM media ID
+ *****************************************************************************/
+int ioctl_ReadCPRMMediaId( int i_fd, int *p_agid, uint8_t *p_mediaid )
+{
+    int i_ret;
+
+#if defined( HAVE_LINUX_CDROM_H )
+    INIT_CGC( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+    cgc.cmd[  7 ] = CPRM_STRUCT_MEDIA_ID;
+    cgc.cmd[ 10 ] = *p_agid << 6;
+
+    i_ret = ioctl( i_fd, CDROM_SEND_PACKET, &cgc );
+
+    if( i_ret < 0 )
+    {
+        return i_ret;
+    }
+
+    memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+
+#elif defined( HAVE_BSD_DVD_STRUCT )
+    struct dvd_struct dvd;
+
+    memset( &dvd, 0, sizeof( dvd ) );
+    dvd.format = CPRM_STRUCT_MEDIA_ID;
+    dvd.agid = *pi_agid;
+    memset( dvd.data, 0, CPRM_MEDIA_ID_SIZE );
+
+    i_ret = ioctl( i_fd, DVDIOCREADSTRUCTURE, &dvd );
+
+    if( i_ret < 0 )
+    {
+        return i_ret;
+    }
+
+    memcpy( p_mediaid, dvd.data, CPRM_MEDIA_ID_SIZE );
+
+#elif defined( SYS_BEOS )
+    INIT_RDC( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+    rdc.command[ 7 ]  = CPRM_STRUCT_MEDIA_ID;
+    rdc.command[ 10 ] = *pi_agid << 6;
+
+    i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+
+    if( i_ret < 0 )
+    {
+        return i_ret;
+    }
+
+    memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+
+#elif defined( HPUX_SCTL_IO )
+    INIT_SCTL_IO( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+    sctl_io.cdb[ 7 ]  = CPRM_STRUCT_MEDIA_ID;
+    sctl_io.cdb[ 10 ] = *pi_agid << 6;
+
+    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
+
+    if( i_ret < 0 )
+    {
+        return i_ret;
+    }
+
+    memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+
+#elif defined( SOLARIS_USCSI )
+    INIT_USCSI( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+    rs_cdb.cdb_opaque[ 7 ] = CPRM_STRUCT_MEDIA_ID;
+    rs_cdb.cdb_opaque[ 10 ] = *pi_agid << 6;
+
+    i_ret = SolarisSendUSCSI( i_fd, &sc );
+
+    if( i_ret < 0 || sc.uscsi_status )
+    {
+        i_ret = -1;
+        return i_ret;
+    }
+
+    memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+
+#elif defined( WIN32 )
+    if( WIN2K ) /* NT/2k/XP */
+    {
+        INIT_SPTD( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+        sptd.Cdb[ 7 ]  = CPRM_STRUCT_MEDIA_ID;
+        sptd.Cdb[ 10 ] = *pi_agid << 6;
+
+        i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
+
+        if( i_ret == 0 )
+        {
+            *pi_copyright = p_buffer[ 4 ];
+            memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+        }
+    }
+    else
+    {
+        INIT_SSC( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+        ssc.CDBByte[ 7 ]  = CPRM_STRUCT_MEDIA_ID;
+        ssc.CDBByte[ 10 ] = *pi_agid << 6;
+
+        i_ret = WinSendSSC( i_fd, &ssc );
+
+        memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+    }
+
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+    p_cpt->cam_cdb[ 7 ] = CPRM_STRUCT_MEDIA_ID;
+    p_cpt->cam_cdb[ 10 ] = *pi_agid << 6;
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+
+#elif defined ( SYS_OS2 )
+    INIT_SSC( GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4 );
+
+    sdc.command[ 7 ]  = CPRM_STRUCT_MEDIA_ID;
+    sdc.command[ 10 ] = *pi_agid << 6;
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
+
+    if( i_ret < 0 )
+    {
+        return i_ret;
+    }
+
+    memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
+
+#else
+#   warning "CPxM ioctls are unavailable on this system"
+
+    i_ret = -1;
+
+#endif
+    return i_ret;
+}
+
 /* Local prototypes */
 
 #if defined( HAVE_LINUX_CDROM_H )
