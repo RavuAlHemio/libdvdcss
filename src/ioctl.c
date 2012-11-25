@@ -1904,7 +1904,6 @@ int ioctl_ReadCPRMMediaId( int i_fd, int *p_agid, uint8_t *p_mediaid )
 
         if( i_ret == 0 )
         {
-            *pi_copyright = p_buffer[ 4 ];
             memcpy( p_mediaid, p_buffer + 4, CPRM_MEDIA_ID_SIZE );
         }
     }
